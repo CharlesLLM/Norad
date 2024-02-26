@@ -1,0 +1,60 @@
+{% load static %}
+
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>norad</title>
+
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300i,400,400i,500,500i,600,600i,700,700i&amp;subset=latin-ext">
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/icon.js' %}"></script>
+    <link href="{% static 'css/tabler-icons.min.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/tabler.min.css' %}">
+    <script src="{% static 'js/tabler.min.js' %}"></script>
+</head>
+
+<body>
+    <header class="navbar navbar-expand-md navbar-dark d-print-none">
+        <div class="container-xl">
+            <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
+                <a href="">
+                    NORAD - Connexion
+                </a>
+            </h1>
+        </div>
+    </header>
+    <div class="flex-fill d-flex flex-column justify-content-center py-4">
+        <div class="container-tight py-6">
+            <form class="card card-md" action="{% url 'connection' %}" method="post">
+                {% csrf_token %}
+                <div class="card-body p-6">
+                    <div class="mb-3">
+                        <label class="form-label">Mot de passe</label>
+                        <input type="password" name="password" class="form-control"
+                            placeholder="Votre mot de passe">
+                    </div>
+
+                    <div class="form-footer">
+                        <button type="submit" class="btn btn-primary w-100 mb-1">
+                            Se connecter
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            {% if error %}
+            <div class="alert alert-danger text-center mt-3 bg-danger" role="alert">
+                <div class="text-white"><strong>{{error}}</strong></div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+
+</html>

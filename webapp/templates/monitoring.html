@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Monitoring{% endblock title %}
+
+{% block content %}
+<head>
+    <meta http-equiv="refresh" content="60">
+</head>
+<div class="container monitoring-container ">
+    <div class="row page-header">
+        <div class="col-12">
+            <div class="card card-top">
+                <div class="card-status-start bg-dark"></div>
+                <div class="card-body row">
+                    <div class="col-6">
+                        <h3 class="card-title">
+                            <i class="ti ti-message-dots"></i>
+                                Liste des données d'utilisation des serveurs</h3>
+                    </div>
+                    <div class="col-6 right-card-header">
+                        <button class="btn btn-primary refresh-button" onClick="refreshPage();">
+                            Refresh&nbsp;<i class="ti ti-refresh"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row gx-5">
+        {% for server_name in servers %}
+            <div class="col-6">
+                <div class="card app-card">
+                    <div class="card-status-start bg-dark"></div>
+                    <div class="card-header">
+                        <div class="col-6">
+                            <h3 class="card-title">{{server_name|capfirst}}</h3>
+                        </div>
+                        <div class="col-6 right-card-header">
+                            <button class="btn btn-primary redirect-button"
+                                onClick="redirect('{{server_name}}')">
+                                Voir plus&nbsp;<i class="ti ti-search"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <samp style="font-size: small;">
+                            <table id="server-data-table"
+                                data-toggle="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" data-field="datetime">Date</th>
+                                        <th scope="col" data-field="cpu_percent">
+                                            <i class="ti ti-cpu"></i>CPU</th>
+                                        <th scope="col" data-field="memory_percent">
+                                            <i class="ti ti-cpu"></i>RAM</th>
+                                        <th scope="col" data-field="disk_percent">
+                                            <i class="ti ti-cpu"></i>Disque</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for source in data.items %}
+                                        {% if source.0 == server_name %}
+                                            {% for value in source.1 %}
+                                            <tr>
+                                                <td>{{ value.datetime }}</td>
+                                                <td class="short-cell">{{ value.cpu_percent }}%</td>
+                                                <td class="short-cell">{{ value.memory_percent }}%</td>
+                                                <td class="short-cell">{{ value.disk_percent }}%</td>
+                                            </tr>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </samp>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock content %}

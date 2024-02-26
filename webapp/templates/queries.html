@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Requêtes Precisions{% endblock title %}
+
+{% block content %}
+<div class="container queries-container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-top">
+                <div class="card-status-start bg-dark"></div>
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="ti ti-message-dots"></i>&nbsp;Liste des requêtes Precisions
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-status-start bg-dark"></div>
+        <div class="card-body">
+            <samp style="font-size: x-small;">
+                <table id="table" 
+                    data-toggle="table"
+                    data-search="true"
+                    data-filter-control="theading
+                    headingue" 
+                    data-show-export="true"
+                    data-click-to-select="true">
+                    <thead>
+                        <tr>
+                            <th scope="col" data-field="date" data-sortable="true">Date</th>
+                            <th scope="col" data-field="content" data-sortable="true">Contenu</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for event in queries %}
+                        <tr>
+                            <td class="short-cell">{{event.datetime}}</td>
+                            <td class="long-cell">
+                                {{event.content|slice:176}}
+                                {% if event.content|length >= 180 %}...{% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </samp>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

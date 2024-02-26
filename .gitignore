@@ -1,0 +1,8 @@
+api/__pycache__/
+api/migrations/__pycache__/
+norad/__pycache__/
+test_data/__pycache__/
+utils_n/__pycache__/
+webapp/__pycache__/
+webapp/migrations/__pycache__/
+usage_data.txt

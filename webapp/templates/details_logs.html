@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Details Logs{% endblock title %}
+
+{% block content %}
+<div class="container details-logs-container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-top">
+                <div class="card-status-start bg-dark"></div>
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="ti ti-message-dots"></i>&nbsp;Liste des logs
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-status-start bg-dark"></div>
+        <div class="card-body">
+            <samp style="font-size: small;">
+                <table id="table" 
+                    data-toggle="table"
+                    data-search="true"
+                    data-align="left"
+                    data-filter-control="true" 
+                    data-show-export="true"
+                    data-click-to-select="true">
+                    <thead>
+                        <tr>
+                            <th scope="col" data-field="source" data-sortable="true">Source</th>
+                            <th scope="col" data-field="date" data-sortable="true">Date</th>
+                            <th scope="col" data-field="status" data-sortable="true">Statut</th>
+                            <th scope="col" data-field="content" data-sortable="true">Contenu</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for event in logs %}
+                        <tr>
+                            <td class="short-cell">{{event.source}}</td>
+                            <td class="short-cell">{{event.datetime}}</td>
+                            <td class="short-cell">{{event.status}}</td>
+                            <td class="">{{event.content}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </samp>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

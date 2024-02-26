@@ -1,0 +1,23 @@
+{
+    "mongodb": {
+        "uri" : "mongodb://localhost:27017",
+        "server" : "127.0.0.1",
+        "port" : 27017,
+        "username" : "",
+        "password" : ""
+    },
+
+    "wl": {
+        "local": "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
+    },
+
+    "ip_address_flask": "127.0.0.1",
+ 
+    "path_to_log": "/home/cladier/Downloads/precisions.20220809.log",
+
+    "path": "/home/cladier/",
+
+    "server_name": "precisions-preprod",
+
+    "disk_name": "nvme0n1p2"
+}

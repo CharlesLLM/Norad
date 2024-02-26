@@ -1,0 +1,121 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Scripts -->
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/jqueryUI/jquery-ui.min.js' %}"></script>
+    <!-- Dashboard Core -->
+    <link rel="stylesheet" href="{% static 'css/tabler.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/tabler-icons.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/tabler-flags.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/tabler-payments.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/tabler-vendors.min.css' %}" />
+    <script src="{% static 'js/tabler.min.js' %}"></script>
+    
+    <!-- Bootstrap table -->
+    <link rel="stylesheet"
+        href="https://unpkg.com/bootstrap-table@1.20.0/dist/bootstrap-table.min.css">
+    <script src="https://unpkg.com/bootstrap-table@1.20.0/dist/bootstrap-table.min.js"></script>
+    <script
+        src="https://unpkg.com/bootstrap-table@1.20.0/dist/locale/bootstrap-table-fr-FR.min.js">
+    </script>
+
+    {% comment %} TomSelect {% endcomment %}
+    <script src="{% static 'plugins/tom-select/dist/js/tom-select.complete.js' %}"></script>
+
+    <title>{% block title %}{% endblock title %}</title>
+    <link rel="stylesheet" href="{% static 'css/norad.css' %}">
+    <script src="{% static 'js/norad.js' %}"></script>
+    <!-- Script for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+
+
+<body>   
+    
+    <header class="navbar navbar-expand-md navbar-dark fixed-top d-print-none">        
+        <div class="container-xl">
+            <div class="nav-icon">
+                <a href="{% url 'dashboard' %}">
+                    <img src="{% static '/img/norad_logo.png' %}" alt="Logo">
+                </a>
+            </div>
+        
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div>
+                <div class="container">
+                    <h1 class="heading">{% block heading %}{% endblock heading %}</h1>
+                </div>
+            </div>
+
+            <div class="collapse navbar-collapse" id="navbar-menu">
+                <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch 
+                    align-items-md-center">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'details_logs' %}">
+                                <span class="nav-link-title">
+                                    Détails Logs
+                                </span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'monitoring' %}">
+                                <span class="nav-link-title">
+                                    Monitoring
+                                </span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'queries' %}">
+                                <span class="nav-link-title">
+                                    Requêtes Precisions
+                                </span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">
+                                <span class="nav-link-title">
+                                    Déconnexion
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="content" id="{% block page-id %}{% endblock page-id %}">
+        {% block content %}
+        {% endblock content %}
+
+        <footer class="footer footer-transparent d-print-none">
+            <div class="container-xl text-end">
+                <div class="row text-center align-items-center flex-row-reverse">
+                    <div class="col-lg-auto ms-lg-auto">
+                        <a href="https://www.datacompany.fr" target="_blank">
+                            Data Company</a> © 2023. Tous droits réservés.
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    
+    <script>
+        {% block scripts %}{% endblock scripts %}    
+    </script>
+</body>
+</html>

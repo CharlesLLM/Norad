@@ -1,0 +1,392 @@
+{% extends 'base.html' %}
+
+{% block title %}Monitoring {{ name }}{% endblock title %}
+
+{% block content %}
+<div class="container monitoring-container " id="server-monitoring-body">
+    {% comment %} En-tête de la page {% endcomment %}
+    <div class="row page-header">
+        <div class="col-12">
+            <div class="card card-top">
+                <div class="card-status-start bg-dark"></div>
+                <div class="card-header row">
+                    <div class="col-6">
+                        <h3 class="card-title">
+                            <i class="ti ti-message-dots"></i>&nbsp;Liste des données d'utilisation
+                            du serveur {{ name|capfirst }}</h3>
+                    </div>
+                    <div class="col-6 right-card-header">
+                        <a class="dropdown-toggle text-muted" data-bs-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">Délai de rafraîchissement
+                            (<span id="refresh-value"></span>)</a>&nbsp;
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <a class="dropdown-item" href="javascript:setTimerCookie(10000)">10s</a>
+                            <a class="dropdown-item" href="javascript:setTimerCookie(30000)">30s</a>
+                            <a class="dropdown-item" href="javascript:setTimerCookie(60000)">60s</a>
+                            <a class="dropdown-item" href="javascript:setTimerCookie(120000)">120s
+                            </a>
+                        </div>
+                        <button class="btn btn-primary refresh-button" onClick="refreshPage();">
+                            Refresh&nbsp;<i class="ti ti-refresh"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% comment %} Graphique des dernières 24h {% endcomment %}
+    <div class="card">
+        <div class="card-status-start bg-dark"></div>
+        <div class="card-body">
+            <h2>Historique des 24 dernières heures</h2>
+            {% if day_chart_values %}
+            <div id="chart_day"></div>
+            {% else %}
+                Aucune donnée
+            {% endif %}
+        </div>
+    </div>
+
+    {% comment %} Graphique des 7 derniers jours {% endcomment %}
+    <div class="card">
+        <div class="card-status-start bg-dark"></div>
+        <div class="card-body">
+            <h2>Maximums sur les 7 derniers jours (/4h)</h2>
+            {% if week_chart_values %}
+            <div id="chart_week"></div>
+            {% else %}
+                Aucune donnée
+            {% endif %}
+        </div>
+    </div>
+
+    {% comment %} Partie détails des chutes de services {% endcomment %}
+    <div class="card">
+        <div class="card-status-start bg-dark"></div>
+        <div class="card-body">
+            <h2>Liste des services tombés sur les 7 derniers jours</h2>
+            {% if drops %}
+                {% comment %} Partie affichée si aucun taux n'est spécifié {% endcomment %}
+                <samp style="font-size: xx-small;" id="services-drops">
+                    <span id="last-drop">
+                        [{{drops.0.begin_drop}}-{{drops.0.end_drop}}] 
+                        {{drops.0.service}}
+                        <br>
+                        {% if drops|length > 1 %}
+                        <span id="dots-drops">...<br>
+                        </span>
+                    </span>
+                    <span id="plus-drops">
+                        {% for drops_value in drops %}
+                            [{{drops_value.begin_drop}}-{{drops_value.end_drop}}] 
+                            {{drops_value.service}}
+                            <br>
+                        {% endfor %}
+                        {% endif %}
+                    </span>
+                </samp>
+                {% if drops|length > 1 %}
+                <button class="btn btn-primary" onclick="moreDrops()" id="drops-button">Voir plus
+                </button>
+                {% endif %}
+            {% else %}
+                Aucun service n'est tombé cette dernière semaine
+            {% endif %}
+        </div>
+    </div>
+
+    {% comment %} Partie détails {% endcomment %}
+    <div class="card">
+        <div class="card-status-start bg-dark"></div>
+        <div class="card-body">
+            {% if details %}
+                {% comment %} input avec actualisation en direct {% endcomment %}
+                <div class="form-group" id="critical-row">
+                    <label for="critical-rate" class="form-label">Taux de critique :&nbsp;</label>
+                    <input type="text" class="form-control" id="critical-input" name="critical-rate"
+                    placeholder="Pourcentage" onInput="criticalFilter(this.value)">
+                </div>
+                {% comment %} Partie affichée si un taux est spécifié {% endcomment %}
+                <div id="given-input">
+                    <samp style="font-size: x-small;" id="specific-details">
+                    </samp>
+                    <p id="null-result">Aucune donnée</p>
+                </div>
+            {% else %}
+                Aucune donnée
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-status-start bg-dark"></div>
+        <div class="card-header">
+            <h2>Liste complète des relevés de la dernière semaine</h2>
+        </div>
+        <div class="card-body">
+            <table id="table"
+                class="card-table table-vcenter text-nowrap table-hover"
+                data-classes="table table-striped table-borderless"
+                data-toggle="table"
+                data-pagination="true"
+                data-pagination-parts="[pageList, pageSize]"
+                data-page-list="[5, 10, 25, 50, All]">
+                <thead>
+                <tr>
+                    <th class="w-1">ID</th>
+                    <th scope="col" data-field="datetime" data-sortable="true">Date/heure</th>
+                    <th scope="col" data-field="cpu_percent" data-sortable="true">%CPU</th>
+                    <th scope="col" data-field="memory_percent" data-sortable="true">%RAM</th>
+                    <th scope="col" data-field="disk_percent" data-sortable="true">%Disque</th>
+                </tr>
+                </thead>
+                <tbody id="data-table-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+<script>
+    {% block scripts %}
+
+    {% comment %} Gestion du cookie de rafraîchissement {% endcomment %}
+    timer_value = getCookieValue("timer_token");
+    let refresh_value = document.getElementById("refresh-value");
+    refresh_value.textContent = timer_value/1000 + "s";
+    
+    var table_body = document.getElementById("data-table-body");
+    table_body.innerHTML = "";
+    {% for history_value in history %}
+        var cpu = parseFloat("{{history_value.cpu_percent}}");
+        var memory = parseFloat("{{history_value.memory_percent}}");
+        var disk = parseFloat("{{history_value.disk_percent}}");
+        table_body.innerHTML += "<tr>" + 
+            "<td><span class='text-muted'>{{ history_value.id }}</span></td>" + 
+            "<td>{{ history_value.datetime }}</td>" + 
+            "<td>" + cpu + "</td>" + 
+            "<td>" + memory + "</td>" + 
+            "<td>" + disk + "</td>" + 
+        "</tr>"
+    {% endfor %}
+
+    {% comment %} Fonction appelée quand on entre une valeur dans l'input du taux critique
+    {% endcomment %}
+    function criticalFilter(value) {
+        var given_input = document.getElementById("given-input");
+        var details = document.getElementById("specific-details");
+        details.innerHTML = "";
+        value = parseFloat(value);
+        {% for history_value in history %}
+            var cpu = parseFloat("{{history_value.cpu_percent}}");
+            var memory = parseFloat("{{history_value.memory_percent}}");
+            var disk = parseFloat("{{history_value.disk_percent}}");
+            if ((cpu >= value) || (memory >= value) || (disk >= value))
+            {
+                text = "[{{history_value.datetime}}] {{history_value.cpu_percent}}% du CPU, " + 
+                "{{history_value.memory_percent}}% de la mémoire, " + 
+                "et {{history_value.disk_percent}}% du disque utilisés<br>";
+                details.innerHTML += text;
+            }
+        {% endfor %}
+    }
+
+    {% if day_chart_values %}
+    window.ApexCharts && (new ApexCharts(document.getElementById("chart_day"), {
+        chart: {
+            type: "area",
+            fontFamily: "inherit",
+            height: 360,
+            parentHeightOffset: 0,
+            toolbar: {
+                show: false,
+            },
+            animations: {
+                enabled: false
+            },
+        },
+        dataLabels: {
+            enabled: false,
+        },
+        fill: {
+            opacity: .16,
+            type: "solid"
+        },
+        stroke: {
+            width: 2,
+            lineCap: "round",
+            curve: "smooth",
+        },
+        series: [{
+            name: "Charge CPU",
+            data: [
+                {% for cpu_value in day_chart_values %}
+                "{{ cpu_value.cpu_percent }}",
+                {% endfor %}
+            ]
+        },{
+            name: "Charge RAM",
+            data: [
+                {% for ram_value in day_chart_values %}
+                "{{ ram_value.memory_percent }}",
+                {% endfor %}
+            ]
+        },{
+            name: "Charge disque",
+            data: [
+                {% for disk_value in day_chart_values %}
+                "{{ disk_value.disk_percent }}",
+                {% endfor %}
+            ]
+        }],
+        grid: {
+            padding: {
+                top: 0,
+                right: 0,
+                left: 0,
+                bottom: -20
+            },
+            strokeDashArray: 4,
+        },
+        xaxis: {
+            labels: {
+                padding: 0
+            },
+            tooltip: {
+                enabled: true
+            },
+            axisBorder: {
+                show: false,
+            },
+            categories: [
+                {% for date_value in day_chart_values %}
+                "{{ date_value.datetime|safe }}",
+                {% endfor %}
+            ],
+        },
+        yaxis: {
+            labels: {
+                padding: 4
+            },
+            categories: [],
+        },
+        colors: ["#117DBB", "#9528B4", "#4DA60C"],
+        legend: {
+            show: true,
+            position: "bottom",
+            height: 40,
+            offsetY: 14,
+            markers: {
+                width: 8,
+                height: 8,
+                radius: 100,
+            },
+            itemMargin: {
+                horizontal: 10,
+                vertical: 4,
+            },
+        },
+    })).render();
+    {% endif %}
+
+    {% if week_chart_values %}
+    window.ApexCharts && (new ApexCharts(document.getElementById("chart_week"), {
+        chart: {
+            type: "area",
+            fontFamily: "inherit",
+            height: 360,
+            parentHeightOffset: 0,
+            toolbar: {
+                show: false,
+            },
+            animations: {
+                enabled: false
+            },
+        },
+        dataLabels: {
+            enabled: false,
+        },
+        fill: {
+            opacity: .16,
+            type: "solid"
+        },
+        stroke: {
+            width: 2,
+            lineCap: "round",
+            curve: "smooth",
+        },
+        series: [{
+            name: "Charge CPU",
+            data: [
+                {% for cpu_value in week_chart_values %}
+                "{{ cpu_value.cpu_percent }}",
+                {% endfor %}
+            ]
+        },{
+            name: "Charge RAM",
+            data: [
+                {% for ram_value in week_chart_values %}
+                "{{ ram_value.memory_percent }}",
+                {% endfor %}
+            ]
+        },{
+            name: "Charge disque",
+            data: [
+                {% for disk_value in week_chart_values %}
+                "{{ disk_value.disk_percent }}",
+                {% endfor %}
+            ]
+        }],
+        grid: {
+            padding: {
+                top: 0,
+                right: 0,
+                left: 0,
+                bottom: -20
+            },
+            strokeDashArray: 4,
+        },
+        xaxis: {
+            labels: {
+                padding: 0
+            },
+            tooltip: {
+                enabled: true
+            },
+            axisBorder: {
+                show: false,
+            },
+            categories: [
+                {% for date_value in week_chart_values %}
+                "{{ date_value.datetime }}",
+                {% endfor %}
+            ],
+        },
+        yaxis: {
+            labels: {
+                padding: 4
+            },
+        },
+        colors: ["#117DBB", "#9528B4", "#4DA60C"],
+        legend: {
+            show: true,
+            position: "bottom",
+            height: 40,
+            offsetY: 14,
+            markers: {
+                width: 8,
+                height: 8,
+                radius: 100,
+            },
+            itemMargin: {
+                horizontal: 10,
+                vertical: 4,
+            },
+        },
+    })).render();
+    {% endif %}
+    
+    {% endblock scripts %}
+</script>
