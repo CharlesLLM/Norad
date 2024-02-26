@@ -1,42 +1,30 @@
 # NORAD
-
-## Expression de besoin
-Outil de monitoring DSI
-
-L'objectif de ce produit sera de centraliser l'activité du système d'information du groupe : puit de log, monitoring du réseau, monitoring de la charge serveur, etc...
+<img src="images/logo.png" alt="logo" width="30%">
 
 
-Outil / script d'accès versionné pour une meilleure traçabilité
+## Description
+This project is a monitoring app I worked on during my 2nd BTS year internship. It is a web application that centralizes the activity of the information system of the company. It is an app which includes log well, a server load monitoring, and a list of the executed requests on the servers applications.
+The project comes with a Python library to deploy on the networked servers, an API which collects data and register them in a database, and a responsive website for the dev team to monitor the servers state.
 
+## Flows
+<img src="images/flows.png" alt="flows" width="70%">
 
-Il se présentera sous la forme d'un site one page / responsive design
-Techno : Python / Django / VueJS + kit HTML à trouver ?
+## Stack
+- API: Flask
+- Website: Django, HTML/CSS, JS
+- Database: MongoDB
 
+## Screens
+### Homepage
+<img src="images/homepage.png" alt="homepage" width="45%">
 
-Pour interagir avec cette application, cela se passera sous la forme d'une API.
+### Log well
+<img src="images/log_well.png" alt="log well" width="45%">
 
+### Monitoring
+<img src="images/monitoring_index.png" alt="monitoring index" width="45%">
+<img src="images/monitoring_page1.png" alt="monitoring page 1" width="45%">
+<img src="images/monitoring_page2.png" alt="monitoring page 2" width="45%">
 
-En dehors de l’application elle-même, La première brique sera donc de mettre à disposition un script python qui permettra d'attaquer cette API selon les différentes use cases, qui sera ensuite implémentée dans les différentes outils
-
-
-/!\ prévoir un système de copie locale au cas où l'applicatif tombe avec éventuellement un système de rattrapage
-
-
-Idée d'apps :
-- Puit de LOG
-- Monitoring du réseau
-- Monitoring de la charge serveur
-- precisions : statut des watchers
-- precisions : recueil des requêtes exécutées
-- statut des serveurs mongo (par exemple, serveur de prod tombé dans la nuit du 4 au 5 janvier...)
-- statut de web serveur apache2
-- récupération des versions precisions
-- suivi de l'utilisation de simplerest ?
-
-
-Détails puit de log :
-- Outils
-- Fonction
-- Type : message / erreur
-- Horodatage
-- Trace
+### Requests
+<img src="images/requests.png" alt="requests" width="45%">
